@@ -2,28 +2,24 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const restaurantSchema = new mongoose.Schema({
-    name: {
+    RestaurantName: {
         type: String,
         required: true,
     },
-    email: {
+    Email: {
         type: String,
         required: true,
         unique:true
     },
-    password: {
+    Password: {
         type: String,
         required: true,
     },
-    owner: {
+    Owner: {
         type: String,
         required: true,
     },
-    location: {
-        type: String,
-        required: true,
-    },
-    currentStock: {
+    CurrentStock: {
         ingredientNo: {
             type: Number,
             default: 0,
