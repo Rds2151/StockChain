@@ -3,51 +3,67 @@ var router = express.Router();
 const {register} = require("../models/user");
 const flash = require("connect-flash");
 const passport = require("passport");
-
 router.use(flash())
-router.use((req,res,next) => {
-	if (req.isAuthenticated) {
-		return next()
+
+router.use((req, res, next) => {
+	if (req.isAuthenticated()) {
+		if (req.originalUrl === '/users/admin' || req.originalUrl === '/users/logout') {
+            return next();
+        }
+		return res.redirect("/users/admin");
 	}
-	res.redirect("/login")
-})
+	else if (req.originalUrl === '/users/login') return next(); 
+	else if (req.originalUrl === '/users/register') return next();
+	else if (req.originalUrl === '/users/password') return next();
+
+	res.redirect("/");
+}); 
 
 router.get("/admin", (req, res, next) => {
     res.render("index");
 });
 
 router.get("/login", (req, res, next) => {
-    res.render("login");
+	let data = req.flash()
+	if (data.error) result = [data.error,true]
+	else result = data.messages 
+
+    res.render("login", {"messages" : result});
 });
 
 router.get("/register", (req, res, next) => {
     res.render("register");
 });
 
-router.post("/login", passport.authenticate('local', {
-	successRedirect: "/admin",
-	failureRedirect: "/users/login",
-	failureFlash: true 
-}))
+router.post('/login', 
+  passport.authenticate('local', {
+	successRedirect: "/users/admin",
+    failureRedirect: '/users/login',
+    failureFlash: true
+  })
+);
+  
+router.post("/register", async (req, res, next) => {
+    const { email, fname, lname, restaurantName, password } = req.body;
+    const name = fname + " " + lname;
 
-router.post("/register",async (req, res, next) => {
-	const { email, fname, lname, restaurantName, password } = req.body;
-	const name = fname+" "+lname;
-
-	const result = await register(restaurantName,email,name,password);
-	if(result.hasError) {
-		res.render("register");
-	} else {
-		res.redirect("login")
+    const result = await register(restaurantName, email, name, password);
+    if (result.hasError) {
+        res.render("register", {"message":result.error});
+    } else {
+		req.flash("messages", [result.message, false]);
+		res.redirect("/users/login");
 	}
 });
+
 
 router.get("/password", (req, res, next) => {
     res.render("password");
 });
 
 router.get("/logout", (req, res, next) => {
-    res.render("login");
+    req.logout();
+    res.redirect("/users/login");
 });
 
 router.use((req, res, next) => {

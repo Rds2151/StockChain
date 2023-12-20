@@ -27,6 +27,9 @@ class Server
         }
     };
 
+    getUserById = async (id) => {
+        return await Restaurant.findOne({_id : id})
+    }
 }
 
 module.exports = Server;

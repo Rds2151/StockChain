@@ -1,32 +1,40 @@
 const LocalStrategy = require("passport-local").Strategy;
-const server = require("./models/server")
-const bcrypt = require("bcrypt")
-const sobj = new server()
+const server = require("./models/server");
+const bcrypt = require("bcrypt");
+const passport = require("passport");
+const sobj = new server();
 
-function initialize(passport) {
-    passport.use(
-        new LocalStrategy({
-            usernameField: "email",
-        },
-        async (email, password, done) => {
+passport.use(
+    new LocalStrategy(
+        { usernameField: "email" },
+        async (email, password, done) => {          
             try {
-                const user = await sobj.getEmail(email)
-                if ( user == null) {
-                    return done(null, false, { message : `No user Found with that email`, hasError : true})
-                } 
+                const user = await sobj.getEmail(email);
+                if (user == null) {
+                    return done(null, false,"No user found with that email");
+                }
 
-                if (bcrypt.compareSync(password,user.Password)) {
-                    return done(null, user)
+                if (bcrypt.compareSync(password, user.Password)) {
+                    return done(null, user);
                 } else {
-                    return done(null, false, { message : "Incorrect password", hasError : true})
+                    return done(null, false,"Incorrect password");
                 }
             } catch (error) {
-                return done(error)
+                return done(error);
             }
         }
-    ));
-    passport.serializeUser((user, done) => {});
-    passport.deserializeUser((id, done) => {});
-}
+    )
+);
 
-module.exports = initialize;
+passport.serializeUser((user, done) => {
+    done(null, user.id); // Assuming user has an 'id' property
+});
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await sobj.getUserById(id); // Implement this method in your server class
+        done(null, user);
+    } catch (error) {
+        done(error);
+    }
+});
