@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 
 const restaurantSchema = new mongoose.Schema({
     RestaurantName: {
@@ -19,22 +18,17 @@ const restaurantSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    CurrentStock: {
-        ingredientNo: {
-            type: Number,
-            default: 0,
-        }
+    location: {
+        type: String,
+        required: true,
+        default: "N/A"
+    },
+    role: {
+        type: String,
+        required: true,
+        default: "user"
     }
 });
-
-restaurantSchema.methods.addIngredient = (ingredientName,quantity) => {
-    if (!this.currentStock.hasOwnProperty(ingredientName)){
-        this.currentStock[ingredientName] = {
-            type : Number,
-            default : quantity || 0
-        };
-    }
-};
 
 const Restaurant = mongoose.model('Restaurant', restaurantSchema)
 

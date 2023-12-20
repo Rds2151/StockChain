@@ -17,10 +17,10 @@ mongoose.connect(dbUrl)
 
 var app = express();
 app.use(session({
-  secret: "random cat",
+  secret: 'your-secret-key',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: null }
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 app.use(passport.initialize());

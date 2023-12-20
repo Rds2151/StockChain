@@ -2,13 +2,11 @@ var express = require('express');
 var router = express.Router();
 const passport = require("passport")
 
-// passport.use(new LocalStrategy(
-//   function(username,password,done) {
-//   }
-// ))
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
+  if(req.isAuthenticated()) {
+    res.redirect("/users/admin")
+  }
   res.render('login');
 });
 

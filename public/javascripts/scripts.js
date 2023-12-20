@@ -24,3 +24,40 @@ window.addEventListener('DOMContentLoaded', event => {
     }
 
 });
+
+function showForm(formId) {
+    const forms = document.querySelectorAll('div[id$="Form"]');
+    forms.forEach((form) => {
+        form.style.display = "none";
+    });
+
+    document.getElementById(formId).style.display = "block";
+}
+
+
+function requestStock(itemName,items) {
+    var quantity = prompt("How much of '" + itemName + "' do you need?");
+
+    if (quantity !== null && !isNaN(quantity) && quantity.trim() !== "" ) {
+        var totalQuantity = parseInt(quantity) + items;
+        if (totalQuantity > 100) {
+            alert("Quantity is exceeding the Max Amount\nAvailable: " + (100 - items));
+        } else {
+            fetch("http://localhost:3000/users/requestData", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    "itemName": itemName,
+                    "quantity": quantity,
+                })
+            })
+            .then(response => response.json())
+            .then(data => alert("Request sent for '" + data + "' units of " + itemName))
+            .catch(error => console.error("Error:", error));
+        }
+    } else {
+        alert("Invalid input. Please enter a valid quantity.");
+    }
+}
