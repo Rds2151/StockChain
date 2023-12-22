@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const storageSchema = new mongoose.Schema({
     RestaurantId: {
-        type: String,
+        type: mongoose.Schema.ObjectId,
         required: true,
     },
     ingredientName: {

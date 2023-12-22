@@ -1,0 +1,25 @@
+const Storage = require("./Storage")
+
+exports.storageAggregation = Storage.aggregate([
+  {
+    $lookup: {
+      from: 'restaurants',
+      localField: 'RestaurantId',
+      foreignField: '_id',
+      as: 'restaurantInfo',
+    },
+  },
+  {
+    $unwind: '$restaurantInfo',
+  },
+  {
+    $project: {
+      _id: 0,
+      RestaurantId:1,
+      RestaurantName: '$restaurantInfo.RestaurantName',
+      ingredientName: 1,
+      ingredientNo: 1,
+      requestIngredientNo: 1,
+    },
+  }
+])

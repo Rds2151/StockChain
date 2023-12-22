@@ -191,7 +191,11 @@
                                                                 onchange="selectRow(this)">
                                                         </td>
                                                     <% } %>
-                                                    <td><%= user.RestaurantName %></td>
+                                                    <% if (user.role === "admin") {%>
+                                                        <td><%= item.RestaurantName %></td>
+                                                    <% } else {%>
+                                                        <td><%= user.RestaurantName %></td>
+                                                    <% } %>
                                                     <td><%= item.ingredientName %></td>
                                                     <td><%= user.location %></td>
                                                     <td><%= item.ingredientNo %></td>

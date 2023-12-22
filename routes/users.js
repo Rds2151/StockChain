@@ -123,10 +123,10 @@ router.post("/transferIngredient", async (req, res, next) => {
     const { selectedRows, quantity } = req.body;
 	try {
 		const data = await transferIngredient(selectedRows, quantity);
-		req.flash("message",selectedRows[0].RestaurantId)
+		req.flash("message",data.message)
 		res.send({redirectUrl:"/users/admin"})
 	} catch (error) {
-		req.flash("message",selectedRows[0].RestaurantId)
+		req.flash("message",error.message)
 		res.send({redirectUrl:"/users/admin"})
 	}
 });

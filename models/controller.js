@@ -109,40 +109,17 @@ exports.addIngredientData = async (email, itemName, quantity) => {
     }
 };
 
-// [
-// 	{
-// 	  ingredientName: 'Chicken',
-// 	  ingredientNo: 99,
-// 	  RestaurantId: '65853face03f6dd28f1ce2c9',
-// 	  requestedIngredientNo: 0
-// 	},
-// 	{
-// 	  ingredientName: 'Chicken',
-// 	  ingredientNo: 76,
-// 	  RestaurantId: '6582efe8273bb470dfd0f934',
-// 	  requestedIngredientNo: 1
-// 	}
-//   ]
-
 exports.transferIngredient = async (selectedRows, quantity) => {
     try {
         senderId = selectedRows[0].RestaurantId;
         receiverId = selectedRows[1].RestaurantId;
-        const senderRestaurant = await sobj.getRestaurantById(senderId);
-        if (senderRestaurant === null) {
-            return { error: "Sender ID Not Found" };
-        }
-        const recevierRestaurant = await sobj.getRestaurantById(receiverId);
-        if (recevierRestaurant === null) {
-            return { error: "Recevier ID Not Found" };
-        }
-
-        const stock = await sobj.transferIngredient(senderRestaurant, recevierRestaurant, selectedRows[0].ingredientName, parseInt(quantity));
+        
+        const result = await sobj.transferIngredient(senderId, receiverId, selectedRows[0].ingredientName, parseInt(quantity));
 
         return { message: result.message };
 
     } catch (err) {
         console.error("Unexpected error during account creation:", err);
-        throw { message: "Failed to add requested ingredient." };
+        throw { message: "Failed to tranfer ingredient." };
     }
 }

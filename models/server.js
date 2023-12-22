@@ -1,5 +1,6 @@
 const Restaurant = require("./Restaurant"); // Update the path to your Restaurant model
 const Storage = require("./Storage"); // Update the path to your Restaurant model
+const { storageAggregation } = require("./aggregation");
 
 class Server 
 {
@@ -33,10 +34,6 @@ class Server
         return await Restaurant.findOne({_id : id})
     }
 
-    getRestaurantById = async (id) => {
-        return await Storage.findOne({_id : id})
-    }
-
     addIngredient = async (user,itemName,quantity) => {
         try {
             const storage = new Storage({
@@ -62,7 +59,10 @@ class Server
     
     fetchAllStocks = async (user) => {
         try {
-            return await Storage.find({});
+            // return await Storage.find({});
+            const data = await storageAggregation
+            console.log(data)
+            return data
         } catch (error) {
             throw error;
         }
