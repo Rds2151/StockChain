@@ -33,6 +33,10 @@ class Server
         return await Restaurant.findOne({_id : id})
     }
 
+    getRestaurantById = async (id) => {
+        return await Storage.findOne({_id : id})
+    }
+
     addIngredient = async (user,itemName,quantity) => {
         try {
             const storage = new Storage({
@@ -55,6 +59,37 @@ class Server
             throw error;
         }
     };
+    
+    fetchAllStocks = async (user) => {
+        try {
+            return await Storage.find({});
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    fetchSpecificStocks = async (user,itemName) => {
+        try {
+            return await Storage.find({ RestaurantId: user._id, ingredientName:itemName });
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    addRequestedIngredient = async (user, itemName, quantity) => {
+        return await Storage.findOneAndUpdate({ RestaurantId: user._id , ingredientName:itemName}, { $inc: { requestIngredientNo: quantity } });
+    };
+    
+    transferIngredient = async (senderRestaurant, recevierRestaurant, itemName, quantity) => {
+        try {
+            await Storage.findOneAndUpdate({ RestaurantId: senderRestaurant, ingredientName: itemName }, { $inc: { ingredientNo: -quantity } });
+            await Storage.findOneAndUpdate({ RestaurantId: recevierRestaurant, ingredientName: itemName }, { $inc: { ingredientNo: quantity } });
+            await Storage.findOneAndUpdate({ RestaurantId: recevierRestaurant, ingredientName: itemName }, { $inc: { requestIngredientNo: -quantity } });
+            return { "message": "Ingredient transfer complete" };
+        } catch (error) {
+            throw error;
+        }
+    };    
     
 }
 

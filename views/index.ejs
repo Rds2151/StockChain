@@ -43,7 +43,7 @@
                     <div class="sb-sidenav-menu">
                         <div class="nav">
                             <div class="sb-sidenav-menu-heading">Core</div>
-                            <a class="nav-link" href="index">
+                            <a class="nav-link" onclick="showForm('viewForm')">
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 Dashboard
                             </a>
@@ -57,37 +57,6 @@
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" onclick="showForm('addForm')">Add Item</a>
                                     <a class="nav-link" onclick="showForm('viewForm')">View Item</a>
-                                </nav>
-                            </div>
-                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
-                                <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
-                                Pages
-                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                            </a>
-                            <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
-                                <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
-                                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">
-                                        Authentication
-                                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                                    </a>
-                                    <div class="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
-                                        <nav class="sb-sidenav-menu-nested nav">
-                                            <a class="nav-link" href="login">Login</a>
-                                            <a class="nav-link" href="register">Register</a>
-                                            <a class="nav-link" href="password">Forgot Password</a>
-                                        </nav>
-                                    </div>
-                                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError">
-                                        Error
-                                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                                    </a>
-                                    <div class="collapse" id="pagesCollapseError" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
-                                        <nav class="sb-sidenav-menu-nested nav">
-                                            <a class="nav-link" href="401">401 Page</a>
-                                            <a class="nav-link" href="404">404 Page</a>
-                                            <a class="nav-link" href="500">500 Page</a>
-                                        </nav>
-                                    </div>
                                 </nav>
                             </div>
                             <div class="sb-sidenav-menu-heading">Addons</div>
@@ -115,27 +84,29 @@
                         </div>
                     <% } %>
                     <!-- Add Item Form -->
-                    <div class="container-fluid px-4">
-                        <h1 class="mt-4">Add Item</h1>
-                        <ol class="breadcrumb mb-4">
-                            <li class="breadcrumb-item active">Add Item</li>
-                        </ol>
-                        <div class="row" id="addForm" style="display: none;">
-                            <div class="col-md-6">
-                                <form action="/users/addIngredient" method="post">
-                                    <div class="mb-3">
-                                        <label for="ingredientName" class="form-label">Ingredient Name</label>
-                                        <input type="text" class="form-control" id="ingredientName" name="ingredientName" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="quantity" class="form-label">Quantity</label>
-                                        <input type="number" class="form-control" id="quantity" name="quantity" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Add Item</button>
-                                </form>
+                    <% if (user.role !== "admin") {%>                    
+                        <div class="container-fluid px-4" id="addForm" style="display: none;">
+                            <h1 class="mt-4">Add Item</h1>
+                            <ol class="breadcrumb mb-4">
+                                <li class="breadcrumb-item active">Add Item</li>
+                            </ol>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <form action="/users/addIngredient" method="post">
+                                        <div class="mb-3">
+                                            <label for="ingredientName" class="form-label">Ingredient Name</label>
+                                            <input type="text" class="form-control" id="ingredientName" name="ingredientName" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="quantity" class="form-label">Quantity</label>
+                                            <input type="number" class="form-control" id="quantity" name="quantity" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Add Item</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    <% } %>
                     <div class="container-fluid px-4" id="viewForm">
                         <h1 class="mt-4">Dashboard</h1>
                         <% if (user.role === "admin") {%>
@@ -184,38 +155,66 @@
                         <div class="card mb-4">
                             <div class="card-header">
                                 <i class="fas fa-table me-1"></i>
-                                DataTable Example
+                                DataTable 
                             </div>
-                            <div class="card-body">
-                                <table id="datatablesSimple">
+                            <div class="card-body">      
+                                <table id="datatablesSimple" class="table">
+                                    <% if (user.role === "admin") {%>
+                                        <div class="d-flex justify-content-end mb-3">
+                                            <button type="button" class="btn btn-primary py-1" onclick="transferSelectedRows()">Transfer &rarr;</button>
+                                        </div>    
+                                    <% } %>
                                     <thead>
                                         <tr>
+                                            <% if (user.role === "admin") {%><th>Select</th><%}%>
                                             <th>Restaurant Name</th>
                                             <th>Item Name</th>
                                             <th>Location</th>
                                             <th>Available Stock</th>
+                                            <th>Requested Stock</th>
                                             <th>Max Stock</th>
-                                            <th><% if (user.role == "admin") {%>Transfer<%} else {%>Apply for Stock<%}%></th>
+                                            <th><% if (user.role !== "admin") {%>Apply for Stock<%}%></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <% if (user.role === "admin") {%>
+                                        <% if (typeof items !== 'undefined' && items.length > 0) {%>
                                             <!-- Admin specific content here -->
-                                        <% } else {%>
                                             <% for (let item of items) { %>
                                                 <tr>
+                                                    <% if (user.role === "admin") {%>
+                                                        <td>
+                                                            <input type="checkbox"
+                                                                data-ingredient-name="<%= item.ingredientName %>"
+                                                                data-ingredient-no="<%= item.ingredientNo %>"
+                                                                data-row-id="<%= item.RestaurantId %>"
+                                                                data-requested-ingredient-no="<%= item.requestIngredientNo %>"
+                                                                onchange="selectRow(this)">
+                                                        </td>
+                                                    <% } %>
                                                     <td><%= user.RestaurantName %></td>
                                                     <td><%= item.ingredientName %></td>
                                                     <td><%= user.location %></td>
-                                                    <td><%= item.ingredientNo %></td>                                                      
+                                                    <td><%= item.ingredientNo %></td>
+                                                    <td><%= item.requestIngredientNo %></td>                                                      
                                                     <td>100</td>
-                                                    <td><button type="button" class="btn btn-primary py-1" onclick="requestStock('<%= item.ingredientName%>',<%= item.ingredientNo%>)">&rarr;</button></td>
+                                                    <% if (user.role !== "admin") {%>
+                                                        <td>
+                                                            <button type="button" class="btn btn-primary py-1" 
+                                                                onclick="requestStock('<%= item.ingredientName%>', <%= item.ingredientNo%>, '<%= item._id %>')">
+                                                            &rarr;</button>
+                                                        </td>
+                                                    <% } %>
                                                 </tr>
                                             <% } %>
-                                        <% } %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="7" style="text-align: center;">Data Not found</td>
+                                            </tr>
+                                        <% } %> 
                                     </tbody>                                    
                                 </table>
                             </div>
+
                         </div>
                     </div>
                 </main>

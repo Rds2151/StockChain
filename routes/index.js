@@ -22,5 +22,9 @@ router.get("/500", (req,res,next) => {
   res.render("500")
 })
 
+router.get("/charts", (req,res,next) => {
+  res.render("charts")
+})
+
 
 module.exports = router;

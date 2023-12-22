@@ -1,43 +1,64 @@
 var express = require("express");
 var router = express.Router();
-const {register, addIngredientData, fetchStock} = require("../models/user");
+const {register, addIngredientData, fetchStock, requestStock, fetchAllStocks, transferIngredient} = require("../models/controller");
 const flash = require("connect-flash");
 const passport = require("passport");
 router.use(flash())
 
-// router.use((req, res, next) => {
-//     const user = req.session.user;
+router.use((req, res, next) => {
+    const user = req.session.user;
 
-//     if (!user) {
-//         if (req.originalUrl === '/users/login' || req.originalUrl === '/users/register' || req.originalUrl === '/users/password') {
-//             return next();
-//         } else {
-//             return res.redirect('/users/login');
-//         }
-//     }
-
-//     next();
-// });
-
-
-router.get("/admin",async (req, res, next) => {
-	const user = req.session.user;
-	if (!user || Object.keys(user).length === 0) {
-		return res.redirect("/");
+    if (!user) {
+        if (req.originalUrl === '/users/login' || req.originalUrl === '/users/register' || req.originalUrl === '/users/password') {
+            return next();
+        } else {
+            return res.redirect('/users/login');
+        }
     }
-	
-	try {
-		const items = await fetchStock(user.Email);
-		let data = req.flash()
-		if (data.message) {
-			res.render("index", {"user":user, "items":items, "messages" : data.message});
-		}
-		res.render("index", {"user":user, "items":items});
 
-	} catch(error) {
-		res.render("index", {"user":user, "messages" : [error,true]});
-	}
+    next();
 });
+
+
+router.get("/admin", async (req, res, next) => {
+    const user = req.session.user;
+
+    if (!user || Object.keys(user).length === 0) {
+        return res.redirect("/");
+    }
+
+    let items;
+
+    try {
+        if (user.role == "user") {
+            items = await fetchStock(user.Email);
+			if(!items.hasError) {
+				let data = req.flash();
+				if (data.message) {
+					return res.render("index", { "user": user, "items": items, "messages": data.message });
+				}
+			} else {
+				throw items
+			}
+        } else {
+			let fetchData = await fetchAllStocks();
+			if(!fetchData.hasError) {
+				items = fetchData.result;
+				let data = req.flash();
+				if (data.message) {
+					return res.render("index", { "user": user, "items": items, "messages": data.message });
+				}
+			} else {
+				throw fetchData
+			}
+        }
+
+        res.render("index", { "user": user, "items": items });
+    } catch (error) {
+        res.render("index", { "user": user, "messages": [error.message, true] });
+    }
+});
+
 
 router.get("/login", (req, res, next) => {
 	let data = req.flash()
@@ -79,16 +100,35 @@ router.get("/password", (req, res, next) => {
 });
 
 router.get("/logout", (req, res, next) => {
-    req.logout();
-	req.session = null;
-    res.redirect("/users/login");
+    req.logout((err) => {
+        if (err) {
+            return next(err);
+        }
+        res.redirect("/users/login");
+    });
 });
 
-
-router.post("/requestData", (req, res, next) => {
+router.post("/requestData", async (req, res, next) => {
     const { itemName, quantity } = req.body;
-    // const data = requestData(req.session.user.email, itemName, quantity);
-    res.status(200).send(quantity)
+	try {
+		const email = req.session.user.Email;
+		const data = await requestStock(email, itemName, quantity);
+		res.send(data)
+	} catch (error) {
+		res.send(error)
+	}
+});
+
+router.post("/transferIngredient", async (req, res, next) => {
+    const { selectedRows, quantity } = req.body;
+	try {
+		const data = await transferIngredient(selectedRows, quantity);
+		req.flash("message",selectedRows[0].RestaurantId)
+		res.send({redirectUrl:"/users/admin"})
+	} catch (error) {
+		req.flash("message",selectedRows[0].RestaurantId)
+		res.send({redirectUrl:"/users/admin"})
+	}
 });
 
 router.post("/addIngredient", async (req, res, next) => {
